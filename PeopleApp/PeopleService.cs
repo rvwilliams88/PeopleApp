@@ -1,38 +1,23 @@
 namespace PeopleApp;
-using Library;
 
 public partial record Person(string? FirstName, string? LastName, string? FullName);
 
 public interface IPeopleService
 {
-    ValueTask<IImmutableList<Person>> GetPeople(CancellationToken ct);
+    ValueTask<IImmutableList<Person>> GetPeopleAsync(CancellationToken ct);
 }
 
 public class PeopleService : IPeopleService
 {
-    AuthorService? AuthorService { get; set; }
-    LibraryFunctions? LibraryFunctions { get; set; }
-    LibraryService? LibraryService { get; set; }
-    public async ValueTask<IImmutableList<Person>> GetPeople(CancellationToken ct)
+    public async ValueTask<IImmutableList<Person>> GetPeopleAsync(CancellationToken ct)
     {
-        AuthorService = new AuthorService();
-        LibraryFunctions = new LibraryFunctions();
-        LibraryService = new LibraryService();
-        AuthorService.authorsCollection = LibraryFunctions.authorsCollection;
+        await Task.Delay(TimeSpan.FromSeconds(2), ct);
 
-        List<Author>? authors = new List<Author>();
-        authors = await AuthorService.getAuthors();
-
-        List<Person> peopleList = new List<Person>();
-        if (authors == null || authors.Count == 0)
+        var people = new Person[]
         {
-            return ImmutableList<Person>.Empty;
-        }
-        foreach (var author in authors.Take(10))
-        {
-            peopleList.Add(new Person(FirstName: author.first, LastName: author.last, FullName: author.FullName));
-        }
-        var people = peopleList.ToArray();
+            new Person(FirstName: "Peter", LastName: "Ackroyd", FullName: "Peter Ackroyd"),
+            new Person(FirstName: "Jane", LastName: "Adams", FullName: "Jane Adams")
+        };
 
         return people.ToImmutableList();
     }
